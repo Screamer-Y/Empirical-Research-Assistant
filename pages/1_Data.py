@@ -37,7 +37,7 @@ with st.container():
 
     # Create a DataFrame
     items = pd.DataFrame(data_items)
-    st.table(items)
+    st.dataframe(items, use_container_width=True)
     
 col1, col2 = st.columns(2)
 
@@ -49,15 +49,16 @@ with col1:
                             config=config)
 
 with col2:
-    df = pd.DataFrame(np.random.randn(50, 20), columns=("col %d" % i for i in range(20)))
+    df = pd.read_csv(r"C:\Vscode WorkSpace\Empirical-Research-Assistant\projects\test\example_dataset.csv")
     description = df.describe()
     st.subheader("Data Description:")
-    st.dataframe(description)
+    st.dataframe(description, use_container_width=True)
     st.subheader("Data Example:")
-    st.dataframe(df.head())
+    st.dataframe(df.head(),  use_container_width=True)
 
 with st.container():
     selected_items = st.multiselect(
         "Selected Items",
         [i["Name"] for i in data_items])
+    # 改一下，给予一个修改prompt的dialog，确认
     st.button("Generate a Scenario")

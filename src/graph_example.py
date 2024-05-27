@@ -62,8 +62,8 @@ edges.append( Edge(source="Node5",
                         target="Node1")
                     )   
 
-config = Config(width=750,
-                height=500,
+config = Config(width=500,
+                height=550,
                 directed=True, 
                 physics=True, 
                 hierarchical=False,
