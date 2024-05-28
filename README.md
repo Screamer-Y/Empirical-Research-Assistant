@@ -7,24 +7,9 @@ This repository serves as an empirical research assistant project.
 To get started with this project, follow these steps:
 
 1. Clone the repository to your local machine.
-2. Install the necessary dependencies.
-3. Run the project.
-
-## Dependencies
-
-This project requires the following dependencies:
-
-- Dependency 1
-- Dependency 2
-- Dependency 3
-
-## Usage
-
-To use this project, follow these steps:
-
-1. Step 1
-2. Step 2
-3. Step 3
+2. Create a new virtual python environment. The development environment uses Python 3.11.9
+3. Install dependencies using `pip install -r requirements.txt`.
+4. Run the application using `streamlit run Welcome.py`.
 
 ## Contributing
 
