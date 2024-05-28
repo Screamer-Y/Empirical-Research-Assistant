@@ -1,0 +1,11 @@
+_id,_labels,name,age,occupation
+1,:Person,Alice,29,Engineer
+2,:Person,Bob,35,Doctor
+3,:Person,Charlie,32,Artist
+4,:Person,Diana,28,Writer
+5,:Person,Eve,40,Scientist
+6,:Company,TechCorp,,
+7,:Company,HealthInc,,
+8,:City,New York,,
+9,:City,San Francisco,,
+10,:Event,Conference2024,,

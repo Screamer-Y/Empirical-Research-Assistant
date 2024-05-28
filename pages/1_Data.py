@@ -14,6 +14,9 @@ st.set_page_config(
     layout="wide"
 )
 
+if not st.session_state.openai_api_key.startswith('sk-'):
+    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
+
 with st.container():
     st.title('Data Exploration')
     st.subheader("Data Information:")
@@ -47,6 +50,7 @@ with col1:
         return_value = agraph(nodes=nodes, 
                             edges=edges, 
                             config=config)
+        st.write(return_value)
 
 with col2:
     df = pd.read_csv(r"C:\Vscode WorkSpace\Empirical-Research-Assistant\projects\test\example_dataset.csv")

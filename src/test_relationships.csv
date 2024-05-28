@@ -1,0 +1,16 @@
+_start,_end,_type,details
+1,6,WORKS_AT,Senior Engineer
+2,7,WORKS_AT,Chief Surgeon
+3,6,WORKS_AT,Lead Designer
+4,6,ATTENDED,Annual Meeting
+5,7,ATTENDED,Medical Conference
+1,8,LIVES_IN,
+2,9,LIVES_IN,
+3,8,LIVES_IN,
+4,9,LIVES_IN,
+5,8,LIVES_IN,
+6,8,LOCATED_IN,
+7,9,LOCATED_IN,
+8,10,HOSTED,
+9,10,HOSTED,
+10,1,ATTENDED,Speaker

@@ -8,6 +8,9 @@ import os
 sys.path.append("C:\\Vscode WorkSpace\\Empirical-Research-Assistant\\src")
 from src.flow_chat import nodes, edges, config
 
+if not st.session_state.openai_api_key.startswith('sk-'):
+    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
+
 st.title('Scenario')
 
 st.subheader("Scenario Bracnches:")

@@ -5,8 +5,8 @@ import time
 
 project_path = os.getcwd() + "\\projects\\"
 exisiting_projects = os.listdir(project_path)
-st.session_state.project = None
-st.session_state.openai_key = None
+if 'openai_api_key' not in st.session_state:
+    st.session_state.openai_api_key = ''
 
 st.set_page_config(
     page_title="Welcome",
@@ -38,7 +38,12 @@ if st.button("Create New Project"):
 st.divider()    
 
 st.header("Settings")
-st.session_state.openai_key = st.text_input("OpenAI API Key", type="password")
+openai_api_key = st.text_input("OpenAI API Key", type="password")
+if st.button("Save"):
+    st.session_state.openai_api_key = openai_api_key
+st.write("OpenAI API Key: ", st.session_state.openai_api_key)
+if not st.session_state.openai_api_key.startswith('sk-'):
+    st.warning("Please enter your OpenAI API key to enable AI features.", icon="⚠")
 
                
 

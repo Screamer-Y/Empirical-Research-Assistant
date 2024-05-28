@@ -1,6 +1,9 @@
 import streamlit as st
 
 
+if not st.session_state.openai_api_key.startswith('sk-'):
+    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
+
 st.markdown('''
             ### Hypothesis 1: Geometric patterns have a higher consistency in color usage compared to floral and abstract patterns.''')
 
@@ -44,7 +47,7 @@ gen abstract = (PatternType == "abstract")
 regress area geometric floral abstract
 ''')
 
-st.markdown('''Hypothesis 3: Patterns with warmer color palettes (including red and yellow) are more likely to be floral.''')
+st.markdown('''### Hypothesis 3: Patterns with warmer color palettes (including red and yellow) are more likely to be floral.''')
 
 st.code('''
         * Load the data
