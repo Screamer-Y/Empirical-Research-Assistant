@@ -1,7 +1,7 @@
 Milestone: version1
 Five Epic Tasks & task issues:
 - Task 1: Backend fuctions(llm generation, file io, sidebar layout)
-    - Issue 1: llm ge neration
+    - Issue 1: llm generation
     - Issue 2: 'project' file io
     - Issue 3: sidebar layout
 - Task 2: Welcome page
