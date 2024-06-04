@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from . import project
 
-def data_sidebar():
+def data_file_sidebar():
     if not st.session_state.project:
         st.sidebar.error("No project selected, Please select a project in Welcome page.")
         return
@@ -11,24 +11,30 @@ def data_sidebar():
     data_csv = {name:os.path.join(project_path, name) for name in os.listdir(project_path) if os.path.join(project_path, name).endswith(".csv")}
     names = list(data_csv.keys())
     st.sidebar.subheader("Current Project: {}".format(st.session_state.project.split('\\')[-1]))
-    name = st.sidebar.selectbox(
-        "Select a data file:",
+    name = st.sidebar.multiselect(
+        "Select data files:",
         names,
         label_visibility='collapsed',
-        index=None,
+        placeholder='Select data file(s)'
     )
-    if st.sidebar.button("Load Data", use_container_width=True, type='primary') and name:
+    if st.sidebar.button("Confirm", use_container_width=True, type='primary') and name:
+        st.session_state.data_file = {}
         progress_text = "Loading Data..."
-        my_bar = st.sidebar.progress(0, text=progress_text)
-        chunk_size, chunk_list = 1, []
-        total_lines = sum(1 for line in open(data_csv[name], encoding='utf-8')) - 1
-        for chunk in pd.read_csv(data_csv[name], chunksize=chunk_size, encoding='utf-8'):
-            chunk_list.append(chunk)
-            my_bar.progress(len(chunk_list)/total_lines, text=progress_text)
-        my_bar.empty()
-        st.session_state.data_file = pd.concat(chunk_list, axis=0)
-        st.session_state.data_file_name = name
+        for n in name:
+            my_bar = st.sidebar.progress(0, text=progress_text)
+            chunk_size, chunk_list = 1, []
+            total_lines = sum(1 for line in open(data_csv[n], encoding='utf-8')) - 1
+            for chunk in pd.read_csv(data_csv[n], chunksize=chunk_size, encoding='utf-8'):
+                chunk_list.append(chunk)
+                my_bar.progress(len(chunk_list)/total_lines, text=progress_text)
+            my_bar.empty()
+            st.session_state.data_file[n] = pd.concat(chunk_list)
             
+
+def data_item_sidebar():
+    pass
+
+
 def project_sidebar():
     st.sidebar.title("Projects")
     projects = project.get_project_dict()

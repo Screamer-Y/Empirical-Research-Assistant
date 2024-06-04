@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # initialize session state
-session_state_keys = ['data_file', 'data_file_name']
+session_state_keys = ['data_file']
 for key in session_state_keys:
     if key not in st.session_state:
         st.session_state[key] = None
@@ -20,19 +20,36 @@ if not st.session_state.openai_api_key or not st.session_state.openai_api_key.st
     st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
 
 # select data file
-sidebar.data_sidebar()
+sidebar.data_file_sidebar()
 
 if st.session_state.data_file is not None:
-    st.subheader("Data Head")
-    with st.expander(f"{st.session_state.data_file_name}", expanded=True):
-        st.dataframe(st.session_state.data_file.head(10),  use_container_width=True)
-    st.subheader("Descriptive Statistics")
-    with st.expander("Statistics", expanded=True):
-        st.write(st.session_state.data_file.describe())
+    st.subheader("Data Details")
+    for name, df in st.session_state.data_file.items():
+        with st.expander(f"{name}", expanded=True):
+            st.dataframe(df.head(10),  use_container_width=True)
+            st.dataframe(df.describe(),  use_container_width=True)
 
-    st.subheader("Data Items")
+    st.subheader("Data Description")
+    col11, col12 = st.columns([5,1])
+    with col11:
+        st.info('You can either import a CSV file or generate a description of the data items. Alternatively, you can simply fill in the table.', icon="ℹ️")
+    with col12:
+        if st.button("Download Data Description template", use_container_width=True, type='primary'):
+            pass
+    for name, df in st.session_state.data_file.items():
+        with st.expander(f"{name}", expanded=True):
+            col21, col22, col23 = st.columns([1,1,5])
+            with col21:
+                if st.button("Generate Description", key=f"gd_{name}"):
+                    pass
+            with col22:
+                if st.button("Import file", key=f"if_{name}"):
+                    pass
+            item_df = pd.DataFrame({'column': df.columns, 'type': df.dtypes, 'description': [''] * len(df.columns)})
+            item_df.index = range(1, len(item_df) + 1)
+            st.data_editor(item_df, use_container_width=True)
     
-    st.subheader("Item Visualization")
+    st.subheader("Relation Visualization")
 
 # with st.container():
     

@@ -31,7 +31,7 @@ def create_project():
         
 st.subheader("Create or Load a Project to Get Started!")
 
-col11, col12, col13 = st.columns([5,1,1])
+col11, col12, col13 = st.columns([6,1,1])
 
 with col11:
     selected_project = st.selectbox(
@@ -47,7 +47,7 @@ with col12:
         st.session_state.project = projects_dict[selected_project]
         
 with col13:
-    if st.button("Create New Project", type='primary'):
+    if st.button("Create Project", type='primary', use_container_width=True):
         create_project()
 
 if st.session_state.project:
@@ -55,15 +55,17 @@ if st.session_state.project:
 st.divider()    
 
 st.subheader("Settings")
-col21, col22 = st.columns([4,1])
+col21, col22 = st.columns([7,1])
 with col21:
     openai_api_key = st.text_input("OpenAI API Key", type="password", label_visibility='collapsed')
 with col22:
-    if st.button("Save", type='primary'):
+    if st.button("Confirm", type='primary', use_container_width=True):
         st.session_state.openai_api_key = openai_api_key
 
 if not st.session_state.openai_api_key or not st.session_state.openai_api_key.startswith('sk-'):
     st.warning("Please enter your OpenAI API key to enable llm generation features.", icon="⚠")
+else:
+    st.success("OpenAI API key has been set successfully!")
 
                
 
