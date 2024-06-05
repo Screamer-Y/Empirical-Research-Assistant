@@ -1,10 +1,11 @@
 import streamlit as st
 import os
-from utils.project import get_project_dict
+from utils.project import get_project_dict, middle_element
+from utils.llm import MODELS, LLM
 import time
 
 # initialize session state
-session_state_keys = ['project', 'openai_api_key']
+session_state_keys = ['project', 'llm']
 for key in session_state_keys:
     if key not in st.session_state:
         st.session_state[key] = None
@@ -31,9 +32,10 @@ def create_project():
         
 st.subheader("Create or Load a Project to Get Started!")
 
-col11, col12, col13 = st.columns([6,1,1])
+# col11, col12, col13 = st.columns([6,1,1])
+col1, col2, col3 = st.columns([6,1,1])
 
-with col11:
+with col1:
     selected_project = st.selectbox(
         "Select a project:",
         list(projects_dict.keys()),
@@ -42,30 +44,42 @@ with col11:
         placeholder='Select a project'
     )
     
-with col12:
+with col2:
     if st.button("Load Project", type='primary', use_container_width=True):
         st.session_state.project = projects_dict[selected_project]
         
-with col13:
+with col3:
     if st.button("Create Project", type='primary', use_container_width=True):
         create_project()
 
 if st.session_state.project:
-    st.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
+    st.sidebar.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
 st.divider()    
 
 st.subheader("Settings")
-col21, col22 = st.columns([7,1])
-with col21:
-    openai_api_key = st.text_input("OpenAI API Key", type="password", label_visibility='collapsed')
-with col22:
-    if st.button("Confirm", type='primary', use_container_width=True):
-        st.session_state.openai_api_key = openai_api_key
+openai_api_key = st.text_input("OpenAI API Key", type="password")
+with st.expander("Advanced Settings"):
+    # set model name with MODELS
+    model_name = st.selectbox("Model Name", MODELS, index=0)
+    # set temperature with slider
+    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, step=0.1, value=0.7)
+    # set openai api base
+    openai_api_base = st.text_input("OpenAI API Base", value=None, placeholder="No need to change this unless you are using a custom OpenAI API base.")
 
-if not st.session_state.openai_api_key or not st.session_state.openai_api_key.startswith('sk-'):
-    st.warning("Please enter your OpenAI API key to enable llm generation features.", icon="⚠")
+col2 = middle_element([6,1,1], 3)
+with col2:
+    if st.button("Save Settings", type='primary', use_container_width=True):
+        llm = LLM(api_key=openai_api_key, temperature=temperature, model_name=model_name, openai_api_base=openai_api_base)
+        if llm.test_available():
+            st.session_state.llm = llm
+
+if st.session_state.llm:
+    st.sidebar.success("LLM has been set up successfully!")
 else:
-    st.success("OpenAI API key has been set successfully!")
+    st.sidebar.warning("LLM test failed. Please check your OpenAI API key and settings.")
+    
+    
+
 
                
 

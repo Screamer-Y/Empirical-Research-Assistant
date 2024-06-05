@@ -10,12 +10,11 @@ def data_file_sidebar():
     project_path = st.session_state.project + '\\data\\'
     data_csv = {name:os.path.join(project_path, name) for name in os.listdir(project_path) if os.path.join(project_path, name).endswith(".csv")}
     names = list(data_csv.keys())
-    st.sidebar.subheader("Current Project: {}".format(st.session_state.project.split('\\')[-1]))
+    st.sidebar.title("Select data file(s)")
     name = st.sidebar.multiselect(
         "Select data files:",
         names,
-        label_visibility='collapsed',
-        placeholder='Select data file(s)'
+        label_visibility='collapsed'
     )
     if st.sidebar.button("Confirm", use_container_width=True, type='primary') and name:
         st.session_state.data_file = {}

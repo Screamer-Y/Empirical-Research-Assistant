@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_agraph import agraph
 import pandas as pd
 from utils import sidebar
+from project import middle_element
 
 st.set_page_config(
     page_title="Data",
@@ -16,8 +17,14 @@ for key in session_state_keys:
         st.session_state[key] = None
 
 st.title('Data Exploration')
-if not st.session_state.openai_api_key or not st.session_state.openai_api_key.startswith('sk-'):
-    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
+
+if st.session_state.project:
+    st.sidebar.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
+    
+if st.session_state.llm:
+    st.sidebar.success("LLM has been set up successfully!")
+else:
+    st.sidebar.warning("LLM test failed. Please check your OpenAI API key and settings.")
 
 # select data file
 sidebar.data_file_sidebar()
@@ -30,26 +37,19 @@ if st.session_state.data_file is not None:
             st.dataframe(df.describe(),  use_container_width=True)
 
     st.subheader("Data Description")
-    col11, col12 = st.columns([5,1])
-    with col11:
-        st.info('You can either import a CSV file or generate a description of the data items. Alternatively, you can simply fill in the table.', icon="ℹ️")
-    with col12:
-        if st.button("Download Data Description template", use_container_width=True, type='primary'):
-            pass
+    st.info('You can either generate a description of the data items with llm or you can simply paste/fill in the table.', icon="ℹ️")
     for name, df in st.session_state.data_file.items():
         with st.expander(f"{name}", expanded=True):
-            col21, col22, col23 = st.columns([1,1,5])
-            with col21:
-                if st.button("Generate Description", key=f"gd_{name}"):
-                    pass
-            with col22:
-                if st.button("Import file", key=f"if_{name}"):
-                    pass
+            if st.button("Generate Description", key=f"gd_{name}"):
+                pass
             item_df = pd.DataFrame({'column': df.columns, 'type': df.dtypes, 'description': [''] * len(df.columns)})
             item_df.index = range(1, len(item_df) + 1)
             st.data_editor(item_df, use_container_width=True)
     
     st.subheader("Relation Visualization")
+
+else:
+    st.info("Select data file(s) in the sidebar.", icon="ℹ️")
 
 # with st.container():
     
