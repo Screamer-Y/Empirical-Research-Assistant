@@ -1,15 +1,15 @@
 import streamlit as st
 import os
-from utils.project import get_project_dict, middle_element
-from utils.llm import MODELS, LLM
-import time
+from modules.component import info_sidebar
+from modules.llm import MODELS, LLM
+from modules.utils import get_project_dict, middle_element, PROJECT_PATH
 
 # initialize session state
 session_state_keys = ['project', 'llm']
 for key in session_state_keys:
     if key not in st.session_state:
         st.session_state[key] = None
-st.session_state.project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+ "\\projects\\"    
+st.session_state.project_path = PROJECT_PATH 
 
 st.set_page_config(
     page_title="Welcome",
@@ -52,8 +52,6 @@ with col3:
     if st.button("Create Project", type='primary', use_container_width=True):
         create_project()
 
-if st.session_state.project:
-    st.sidebar.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
 st.divider()    
 
 st.subheader("Settings")
@@ -73,10 +71,7 @@ with col2:
         if llm.test_available():
             st.session_state.llm = llm
 
-if st.session_state.llm:
-    st.sidebar.success("LLM has been set up successfully!")
-else:
-    st.sidebar.warning("LLM test failed. Please check your OpenAI API key and settings.")
+info_sidebar()
     
     
 

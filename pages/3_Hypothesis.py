@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 from streamlit_agraph import agraph, Node, Edge, Config
 
-if not st.session_state.openai_api_key.startswith('sk-'):
-    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
     
 import pandas as pd
 

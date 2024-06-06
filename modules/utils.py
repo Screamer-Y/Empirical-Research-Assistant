@@ -1,8 +1,11 @@
 import streamlit as st
+import pandas as pd
 import os
 
+PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+ "\\projects\\"
+
 def get_project_dict():
-    path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+ "\\projects"
+    path = PROJECT_PATH
     projects = {name:os.path.join(path, name) for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))}
     return projects
 
@@ -16,3 +19,7 @@ def middle_element(ratio, index=2):
         return col3
     else:
         return col2
+
+
+
+        
