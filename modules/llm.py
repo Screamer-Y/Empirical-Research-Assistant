@@ -59,7 +59,7 @@ class LLM:
     
 def data_description_generation(item_df):
     if not st.session_state.get('llm'):
-        st.toast("LLM is not available. Please check your settings.")
+        st.toast("LLM is not available. Please check your settings.", icon="😣")
         return
     item_dict = {}
     for index, row in item_df.iterrows():

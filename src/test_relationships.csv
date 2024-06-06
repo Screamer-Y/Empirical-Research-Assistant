@@ -1,4 +1,4 @@
-_start,_end,_type,details
+source,target,label,details
 1,6,WORKS_AT,Senior Engineer
 2,7,WORKS_AT,Chief Surgeon
 3,6,WORKS_AT,Lead Designer

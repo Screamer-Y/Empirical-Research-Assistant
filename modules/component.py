@@ -1,7 +1,28 @@
 import streamlit as st
 import os
 import pandas as pd
+from modules.utils import NODE_RELATIONSHIP_TEMPLATE, EDGE_RELATIONSHIP_TEMPLATE
 
+## Sidebar components
+def info_sidebar():
+    if st.session_state.get('project'):
+        st.sidebar.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
+    else:
+        st.sidebar.error("No project selected.")
+        
+    if st.session_state.get('llm'):
+        st.sidebar.success("LLM has been set up successfully!")
+    else:
+        st.sidebar.warning("LLM unavailable. Check your settings.")
+        
+def data_sidebar():
+    if st.session_state.get('project'):
+        if st.session_state.get('data_file'):
+            st.sidebar.success("Data loaded successfully!")
+        else:
+            st.sidebar.warning("No data loaded yet.")
+
+## Data Page components
 def data_file_selector():
     if not st.session_state.get('project'):
         return
@@ -35,20 +56,3 @@ def data_file_selector():
             st.session_state.data_description[n] = pd.DataFrame({'column': df.columns, 'type': df.dtypes.tolist(), 'description': [''] * len(df.columns), 'example': [df.iloc[0,i] for i in range(len(df.columns))]}, index=range(1, len(df.columns) + 1))
 
 
-def info_sidebar():
-    if st.session_state.get('project'):
-        st.sidebar.success("Project '{}' loaded successfully!".format(st.session_state.project.split('\\')[-1]))
-    else:
-        st.sidebar.error("No project selected.")
-        
-    if st.session_state.get('llm'):
-        st.sidebar.success("LLM has been set up successfully!")
-    else:
-        st.sidebar.warning("LLM unavailable. Check your settings.")
-        
-def data_sidebar():
-    if st.session_state.get('project'):
-        if st.session_state.get('data_file'):
-            st.sidebar.success("Data loaded successfully!")
-        else:
-            st.sidebar.warning("No data loaded yet.")

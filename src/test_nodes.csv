@@ -1,4 +1,4 @@
-_id,_labels,name,age,occupation
+id, label, title,age,occupation
 1,:Person,Alice,29,Engineer
 2,:Person,Bob,35,Doctor
 3,:Person,Charlie,32,Artist

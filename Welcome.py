@@ -1,4 +1,9 @@
 import streamlit as st
+st.set_page_config(
+    page_title="Welcome",
+    page_icon="👋",
+    layout="wide"
+)
 import os
 from modules.component import info_sidebar
 from modules.llm import MODELS, LLM
@@ -11,11 +16,6 @@ for key in session_state_keys:
         st.session_state[key] = None
 st.session_state.project_path = PROJECT_PATH 
 
-st.set_page_config(
-    page_title="Welcome",
-    page_icon="👋",
-    layout="wide"
-)
 st.title('Welcome to Empirical Research Assistant!👋')
 
 projects_dict = get_project_dict()
