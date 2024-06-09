@@ -1,68 +1,89 @@
 import streamlit as st
-from streamlit_agraph import agraph
-import pandas as pd
-import numpy as np
-
-import sys
-import os
-sys.path.append("C:\\Vscode WorkSpace\\Empirical-Research-Assistant\\src")
-from src.graph_example import nodes, edges, config
-
 st.set_page_config(
     page_title="Data",
     page_icon="👋",
     layout="wide"
 )
 
-if not st.session_state.openai_api_key.startswith('sk-'):
-    st.warning("Please enter your OpenAI API key to enable generation feature.", icon="⚠")
+from streamlit_agraph import agraph
+import pandas as pd
+from modules.component import data_file_selector, info_sidebar, data_sidebar
+from modules.utils import middle_element
+from modules.llm import data_description_generation, data_relationship_generation
+from modules.prompt import *
+import json
 
-with st.container():
-    st.title('Data Exploration')
-    st.subheader("Data Information:")
-    data_items = [
-        {"Name": "PatternID", "Type": "Integer", "Description": "A unique identifier for each pattern entry in the dataset."},
-        {"Name": "PatternName", "Type": "String", "Description": "The name of the pattern, providing a human-readable reference."},
-        {"Name": "PatternType", "Type": "String", "Description": "The category or type of the pattern, such as 'geometric,' 'floral,' or 'abstract.'"},
-        {"Name": "Description", "Type": "String", "Description": "A detailed description of the pattern, including its visual characteristics and any notable features."},
-        {"Name": "ColorPalette", "Type": "String", "Description": "The primary colors used in the pattern, listed in a comma-separated format."},
-        {"Name": "Dimensions", "Type": "String", "Description": "The dimensions of the pattern, usually provided in width x height format (e.g., '10x10 inches')."},
-        {"Name": "Resolution", "Type": "Integer", "Description": "The resolution of the pattern image, typically measured in DPI (dots per inch)."},
-        {"Name": "FileFormat", "Type": "String", "Description": "The file format of the pattern image, such as 'JPEG,' 'PNG,' or 'SVG.'"},
-        {"Name": "CreationDate", "Type": "Date", "Description": "The date on which the pattern was created or added to the dataset."},
-        {"Name": "Creator", "Type": "String", "Description": "The name of the individual or entity that created the pattern."},
-        {"Name": "UsageRights", "Type": "String", "Description": "Information about the usage rights or licensing of the pattern, specifying any restrictions on use."},
-        {"Name": "PopularityScore", "Type": "Float", "Description": "A numerical score representing the popularity or usage frequency of the pattern, often calculated based on user interactions or downloads."},
-        {"Name": "Tags", "Type": "String", "Description": "Keywords or tags associated with the pattern, used for search and categorization purposes."},
-        {"Name": "ThumbnailURL", "Type": "String", "Description": "A URL link to a thumbnail image of the pattern for quick preview."},
-        {"Name": "SourceURL", "Type": "String", "Description": "A URL link to the source or detailed page of the pattern, where users can access more information or download the pattern."}
-    ]
+# initialize session state
+session_state_keys = ['data_file', 'data_description']
+for key in session_state_keys:
+    if key not in st.session_state:
+        st.session_state[key] = None
 
-    # Create a DataFrame
-    items = pd.DataFrame(data_items)
-    st.dataframe(items, use_container_width=True)
-    
-col1, col2 = st.columns(2)
+st.title('Data Exploration')
+info_sidebar()
+data_sidebar()
 
-with col1:
-    st.subheader("Data Visualization:")
-    with st.container(border=True):
-        return_value = agraph(nodes=nodes, 
-                            edges=edges, 
-                            config=config)
-        st.write(return_value)
+# select data file
+data_file_selector()
+st.divider()
+if st.session_state.get("data_file"):
+    st.subheader("Data Details")
+    for name, df in st.session_state.data_file.items():
+        with st.expander(f"{name}", expanded=True):
+            st.dataframe(df.head(10),  use_container_width=True)
+            st.dataframe(df.describe(),  use_container_width=True)
+    st.divider()
+    st.subheader("Data Description")
+    st.info('You can either generate a description of the data items with LLM or you can simply modify in the table.', icon="ℹ️")
+    for name, df in st.session_state.data_file.items():
+        with st.expander(f"{name}", expanded=True):
+            desc_df = st.session_state.data_description[name]
+            col3 = middle_element([3,3,1], 3)
+            with col3:
+                if st.button("Generate Description", key=f"gd_{name}", use_container_width=True, type='primary'):
+                    data_description_generation(desc_df)
+            st.data_editor(desc_df, use_container_width=True)
+    st.divider()
+    st.subheader("Relation Visualization")
+    from modules.utils import NODE_RELATIONSHIP_TEMPLATE, EDGE_RELATIONSHIP_TEMPLATE
+    st.error("Sorry, this feature is not available yet.", icon="🥹")
+    st.info('Upload relation file to generate relation graph. Generate with LLM if no file uploaded.', icon="ℹ️")
+    col0, col1, col2, col3 = st.columns([4, 1, 1, 1])
+    with col0:
+        uploaded_files = st.file_uploader("Choose a file", label_visibility='collapsed', type=['csv'], accept_multiple_files=True)
+    with col1:
+       st.download_button(label="Download Node Template", data=NODE_RELATIONSHIP_TEMPLATE, file_name="data_relationship_node_template.csv", mime="text/csv", type='primary')
+    with col2:
+        st.download_button(label="Download Edge Template", data=EDGE_RELATIONSHIP_TEMPLATE, file_name="data_relationship_edge_template.csv", mime="text/csv", type='primary')
+    with col3:
+        if st.button("Generate Relation Graph", use_container_width=True, type='primary'):
+            st.toast("This feature is not available yet.", icon="🥹")
+    st.divider()
+    st.subheader("Generate Scenarios")
 
-with col2:
-    df = pd.read_csv(r"C:\Vscode WorkSpace\Empirical-Research-Assistant\projects\test\example_dataset.csv")
-    description = df.describe()
-    st.subheader("Data Description:")
-    st.dataframe(description, use_container_width=True)
-    st.subheader("Data Example:")
-    st.dataframe(df.head(),  use_container_width=True)
-
-with st.container():
-    selected_items = st.multiselect(
-        "Selected Items",
-        [i["Name"] for i in data_items])
-    # 改一下，给予一个修改prompt的dialog，确认
-    st.button("Generate a Scenario")
+    items_option = [f"{name}: {col}" for name, df in st.session_state.data_file.items() for col in df.columns]
+    selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
+    selected_items_dict = {}
+    for item in selected_items:
+        name, col = item.split(":")
+        column_desc = st.session_state.data_description[name].to_dict(orient='records')
+        col = col.strip()
+        for item in column_desc:
+                if item['name'] == col:
+                    if name in selected_items_dict:
+                        selected_items_dict[name].append(item)
+                        break
+                    else:
+                        selected_items_dict[name] = [item]
+                        break
+    st.info("You can modify the prompt below, add requirements in the <User Guidance>, and generate scenarios.", icon="ℹ️")
+    with st.expander("##Prompt##", expanded=False):
+        system_prompt = st.text_area("System Prompt", value=GENERATE_SCENARIO_SYSTEM_PROMPT,height=150)
+        human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
+        user_guidance = st.text_area("User Guidance", value="<User Guidance>\n")
+    col2 = middle_element([2,1,2])
+    with col2:
+        if st.button("Generate Scenarios", use_container_width=True, type='primary'):
+            scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
+    st.write(scenario)
+            
