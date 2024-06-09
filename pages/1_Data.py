@@ -9,7 +9,9 @@ from streamlit_agraph import agraph
 import pandas as pd
 from modules.component import data_file_selector, info_sidebar, data_sidebar
 from modules.utils import middle_element
-from modules.llm import data_description_generation
+from modules.llm import data_description_generation, data_relationship_generation
+from modules.prompt import *
+import json
 
 # initialize session state
 session_state_keys = ['data_file', 'data_description']
@@ -58,13 +60,30 @@ if st.session_state.get("data_file"):
             st.toast("This feature is not available yet.", icon="🥹")
     st.divider()
     st.subheader("Generate Scenarios")
-    # TODO: data item multi-selectors
-    # TODO: generate prompt button
-    # TODO: info to hint the modification
-    # TODO: maybe some modules of the prompts?
-    with st.expander("Prompt", expanded=False):
-        st.text_area("temp", label_visibility='collapsed', height=300)
+
+    items_option = [f"{name}: {col}" for name, df in st.session_state.data_file.items() for col in df.columns]
+    selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
+    selected_items_dict = {}
+    for item in selected_items:
+        name, col = item.split(":")
+        column_desc = st.session_state.data_description[name].to_dict(orient='records')
+        col = col.strip()
+        for item in column_desc:
+                if item['name'] == col:
+                    if name in selected_items_dict:
+                        selected_items_dict[name].append(item)
+                        break
+                    else:
+                        selected_items_dict[name] = [item]
+                        break
+    st.info("You can modify the prompt below, add requirements in the <User Guidance>, and generate scenarios.", icon="ℹ️")
+    with st.expander("##Prompt##", expanded=False):
+        system_prompt = st.text_area("System Prompt", value=GENERATE_SCENARIO_SYSTEM_PROMPT,height=150)
+        human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
+        user_guidance = st.text_area("User Guidance", value="<User Guidance>\n")
     col2 = middle_element([2,1,2])
     with col2:
         if st.button("Generate Scenarios", use_container_width=True, type='primary'):
-            st.toast("This feature is not available yet.", icon="🥹")
+            scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
+    st.write(scenario)
+            
