@@ -8,13 +8,15 @@ import os
 from modules.component import info_sidebar
 from modules.llm import MODELS, LLM
 from modules.utils import get_project_dict, middle_element, PROJECT_PATH
+from modules.scenario import ScenarioTree
 
 # initialize session state
-session_state_keys = ['project', 'llm']
+session_state_keys = ['project', 'llm', 'data_file', 'data_description']
 for key in session_state_keys:
     if key not in st.session_state:
         st.session_state[key] = None
 st.session_state.project_path = PROJECT_PATH 
+st.session_state.scenario_tree = ScenarioTree(None)
 
 st.title('Welcome to Empirical Research Assistant!👋')
 

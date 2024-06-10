@@ -85,5 +85,5 @@ if st.session_state.get("data_file"):
     with col2:
         if st.button("Generate Scenarios", use_container_width=True, type='primary'):
             scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
-    st.write(scenario)
+    # st.write(scenario)
             
