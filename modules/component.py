@@ -54,5 +54,6 @@ def data_file_selector():
             df = pd.concat(chunk_list)
             st.session_state.data_file[n] = df
             st.session_state.data_description[n] = pd.DataFrame({'name': df.columns, 'type': [str(t) for t in df.dtypes.tolist()], 'description': [''] * len(df.columns), 'example': [df.iloc[0,i] for i in range(len(df.columns))]}, index=range(1, len(df.columns) + 1))
+        st.session_state.scenario_tree.data = st.session_state.data_file
 
 

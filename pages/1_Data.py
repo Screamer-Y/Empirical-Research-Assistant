@@ -8,13 +8,14 @@ st.set_page_config(
 from streamlit_agraph import agraph
 import pandas as pd
 from modules.component import data_file_selector, info_sidebar, data_sidebar
-from modules.utils import middle_element
+from modules.utils import middle_element, get_selected_items_dict
 from modules.llm import data_description_generation, data_relationship_generation
 from modules.prompt import *
-import json
+import json, time
+from hashlib import md5
 
 # initialize session state
-session_state_keys = ['data_file', 'data_description']
+session_state_keys = ['data_file', 'data_description', 'scenario_output']
 for key in session_state_keys:
     if key not in st.session_state:
         st.session_state[key] = None
@@ -27,23 +28,26 @@ data_sidebar()
 data_file_selector()
 st.divider()
 if st.session_state.get("data_file"):
+    
     st.subheader("Data Details")
     for name, df in st.session_state.data_file.items():
         with st.expander(f"{name}", expanded=True):
             st.dataframe(df.head(10),  use_container_width=True)
             st.dataframe(df.describe(),  use_container_width=True)
     st.divider()
+    
     st.subheader("Data Description")
     st.info('You can either generate a description of the data items with LLM or you can simply modify in the table.', icon="ℹ️")
     for name, df in st.session_state.data_file.items():
         with st.expander(f"{name}", expanded=True):
             desc_df = st.session_state.data_description[name]
-            col3 = middle_element([3,3,1], 3)
+            col3 = middle_element([3,2,1], 3)
             with col3:
                 if st.button("Generate Description", key=f"gd_{name}", use_container_width=True, type='primary'):
                     data_description_generation(desc_df)
             st.data_editor(desc_df, use_container_width=True)
     st.divider()
+    
     st.subheader("Relation Visualization")
     from modules.utils import NODE_RELATIONSHIP_TEMPLATE, EDGE_RELATIONSHIP_TEMPLATE
     st.error("Sorry, this feature is not available yet.", icon="🥹")
@@ -59,23 +63,11 @@ if st.session_state.get("data_file"):
         if st.button("Generate Relation Graph", use_container_width=True, type='primary'):
             st.toast("This feature is not available yet.", icon="🥹")
     st.divider()
+    
     st.subheader("Generate Scenarios")
-
     items_option = [f"{name}: {col}" for name, df in st.session_state.data_file.items() for col in df.columns]
     selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
-    selected_items_dict = {}
-    for item in selected_items:
-        name, col = item.split(":")
-        column_desc = st.session_state.data_description[name].to_dict(orient='records')
-        col = col.strip()
-        for item in column_desc:
-                if item['name'] == col:
-                    if name in selected_items_dict:
-                        selected_items_dict[name].append(item)
-                        break
-                    else:
-                        selected_items_dict[name] = [item]
-                        break
+    selected_items_dict = get_selected_items_dict(selected_items)
     st.info("You can modify the prompt below, add requirements in the <User Guidance>, and generate scenarios.", icon="ℹ️")
     with st.expander("##Prompt##", expanded=False):
         system_prompt = st.text_area("System Prompt", value=GENERATE_SCENARIO_SYSTEM_PROMPT,height=150)
@@ -84,6 +76,22 @@ if st.session_state.get("data_file"):
     col2 = middle_element([2,1,2])
     with col2:
         if st.button("Generate Scenarios", use_container_width=True, type='primary'):
+            # in json format
             scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
-    # st.write(scenario)
+            st.session_state.scenario_output = json.loads(scenario)
+    st.divider()
+    if st.session_state.get("scenario_output"):    
+        with st.expander("Scenario", expanded=True):
+            scenario_str = ''
+            for key, value in st.session_state.scenario_output.items():
+                # st.markdown(f"### {key}\n{value}\n")
+                scenario_str += f"### {key}\n{value}\n"
+            scenario_str = scenario_str[:-1]
+            st.markdown(scenario_str)
+            if st.button("Save Scenarios", type='primary'):
+                branch_id = md5(''.join(selected_items).encode()).hexdigest()
+                st.session_state.scenario_tree.add_scenario(branch_id, st.session_state.scenario_output['Scenario Name'], scenario_str)
+                st.success("Scenarios saved successfully!")
+      
+    
             

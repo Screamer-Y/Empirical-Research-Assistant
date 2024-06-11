@@ -34,11 +34,12 @@ DATA_DESCRIPTION_PROMPT = '''You are given a list of data items with their names
 
 GENERATE_SCENARIO_SYSTEM_PROMPT = '''You are a scholar specializing in empirical research, capable of discovering research-worthy scenarios from existing data.
 The user's input consists of multiple data items from one or more data files, organized in JSON format as shown in the <Example Input>. Each data item includes a name, type, description (which may be empty), and example. 
-Your task is to analyze the relationships between different data files and data items based on the markdown format in the <Example Output>, and generate a valuable research scenario includes:
-1、Scenario Description (a brief summary in a few sentences)
-2、Involved Variables (what variables/data are needed to complete this scenario)
-3、Reasoning Logic (why you thought of this scenario)
-4、Application Scenario (its practical significance)
+Your task is to analyze the relationships between different data files and data items, and generate a valuable research scenario based on the json format in the <Example Output> includes:
+1、Scenario Name
+2、Scenario Description (a brief summary in a few sentences)
+3、Involved Variables (what variables/data are needed to complete this scenario)
+4、Reasoning Logic (why you thought of this scenario)
+5、Application Scenario (its practical significance)
 Please follow the above requirements, consider the scenario requirements in the <User Guidance>, and generate a data scenario based on the <User Input>.
 <Example Input>
 {
@@ -67,12 +68,11 @@ Please follow the above requirements, consider the scenario requirements in the 
 }
 
 <Example Output>
-### Scenario Description
-...
-### Involved Variables
-...
-### Reasoning Logic
-...
-### Application Scenario
-...
+{
+    "Scenario Name":"...",
+    "Scenario Description":"...",
+    "Involved Variables":"...",
+    "Reasoning Logic":"...",
+    "Application Scenario":"..."
+}
 '''

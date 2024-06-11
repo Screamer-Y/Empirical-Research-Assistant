@@ -38,6 +38,15 @@ class ScenarioTree:
             self.branches[branch_id] = branch
         else:
             raise KeyError("Branch ID already exists")
+        
+    def add_scenario(self, branch_id: str, scenario_id: str, description: str, branch_scenario:str = '', relation:str = ''):
+        if branch_id in self.branches:
+            branch: ScenarioBranch = self.branches[branch_id]
+            branch.add_scenario_relation(branch.scenarios[-1].id, scenario_id, relation)
+            branch.add_scenario(scenario_id, description)
+        else:
+            self.add_branch(branch_id, branch_scenario)
+            self.branches[branch_id].add_scenario(scenario_id, description)
 
     def get_branch(self, branch_id: str):
         if branch_id in self.branches:

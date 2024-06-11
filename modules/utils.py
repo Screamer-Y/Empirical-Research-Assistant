@@ -26,4 +26,20 @@ def middle_element(ratio, index=2):
     else:
         return col2
     
+def get_selected_items_dict(selected_items):
+    selected_items_dict = {}
+    for item in selected_items:
+        name, col = item.split(":")
+        column_desc = st.session_state.data_description[name].to_dict(orient='records')
+        col = col.strip()
+        for item in column_desc:
+                if item['name'] == col:
+                    if name in selected_items_dict:
+                        selected_items_dict[name].append(item)
+                        break
+                    else:
+                        selected_items_dict[name] = [item]
+                        break
+    return selected_items_dict
+    
         

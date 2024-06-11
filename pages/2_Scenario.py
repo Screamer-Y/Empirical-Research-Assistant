@@ -3,69 +3,15 @@ from streamlit_agraph import agraph
 import pandas as pd
 import numpy as np
 
-import sys
-import os
-sys.path.append("C:\\Vscode WorkSpace\\Empirical-Research-Assistant\\src")
-from src.flow_chat import nodes, edges, config
 
 
 st.title('Scenario')
 
 st.subheader("Scenario Bracnches:")
-with st.container(border=True):
-    return_value = agraph(nodes=nodes, 
-                        edges=edges, 
-                        config=config)
 
 st.subheader("Scenario Description:")
-with st.container(border=True):
-    st.markdown('''
-## Research Scenario: Pattern Analysis and Categorization
-
-### Introduction
-
-In this study, we aim to analyze and categorize various patterns based on their types, descriptions, color palettes, and dimensions. The primary objective is to understand the visual characteristics and thematic elements of different pattern categories, which include geometric, floral, and abstract patterns.
-
-### Pattern Categories
-
-1. **Geometric Patterns**
-   - **Description**: Patterns characterized by shapes and forms that follow mathematical rules and symmetry. Common shapes include circles, squares, triangles, and lines.
-   - **Color Palette**: Blue, Green, White
-   - **Dimensions**: 10x10 inches
-
-2. **Floral Patterns**
-   - **Description**: Patterns inspired by natural elements, particularly flowers and foliage. These designs often incorporate curves and organic shapes.
-   - **Color Palette**: Red, Yellow, Pink
-   - **Dimensions**: 12x12 inches
-
-3. **Abstract Patterns**
-   - **Description**: Patterns that do not represent recognizable objects or scenes. They often focus on the use of colors, shapes, and textures to create visual interest.
-   - **Color Palette**: Black, White, Red
-   - **Dimensions**: 8x8 inches
-
-### Research Objectives
-
-- **Visual Characteristics Analysis**: Examine the visual elements of each pattern category to identify common traits and distinguishing features.
-- **Color Palette Study**: Analyze the impact of different color combinations within each pattern type on visual perception and aesthetic appeal.
-- **Dimensional Impact**: Investigate how the dimensions of a pattern influence its overall design and viewer perception.
-
-### Methodology
-
-1. **Data Collection**: Gather a dataset of patterns, each tagged with relevant metadata including pattern type, description, color palette, and dimensions.
-2. **Qualitative Analysis**: Conduct a detailed visual analysis of patterns within each category to identify common motifs and design principles.
-3. **Quantitative Analysis**: Use statistical methods to analyze the frequency and distribution of colors and shapes in each pattern type.
-4. **Comparative Study**: Compare the patterns across different categories to identify unique and overlapping characteristics.
-
-### Expected Outcomes
-
-- A comprehensive understanding of the design principles and visual characteristics unique to geometric, floral, and abstract patterns.
-- Insights into how color palettes and dimensions contribute to the aesthetic and functional aspects of pattern design.
-- Recommendations for designers on how to effectively utilize different pattern types in various applications, such as textiles, graphic design, and interior decor.
-
-### Conclusion
-
-This research will provide valuable insights into the art and science of pattern design, helping to enhance the creative processes of designers and artists across various industries. By systematically analyzing and categorizing patterns, we aim to contribute to the broader field of design studies and visual arts.
-''')
+st.write(vars(st.session_state.scenario_tree))
+st.write(vars(list(st.session_state.scenario_tree.branches.values())[1].scenarios[0]))
 
 st.subheader("Data Information:")
 data_items = [

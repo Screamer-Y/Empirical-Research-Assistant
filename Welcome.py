@@ -11,12 +11,10 @@ from modules.utils import get_project_dict, middle_element, PROJECT_PATH
 from modules.scenario import ScenarioTree
 
 # initialize session state
-session_state_keys = ['project', 'llm', 'data_file', 'data_description']
-for key in session_state_keys:
+session_state_init = {'project': None, 'llm': None, 'data_file': None, 'data_description': None, 'project_path': PROJECT_PATH, 'scenario_tree': ScenarioTree(None)}
+for key, value in session_state_init.items():
     if key not in st.session_state:
-        st.session_state[key] = None
-st.session_state.project_path = PROJECT_PATH 
-st.session_state.scenario_tree = ScenarioTree(None)
+        st.session_state[key] = value
 
 st.title('Welcome to Empirical Research Assistant!👋')
 
