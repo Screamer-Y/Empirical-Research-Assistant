@@ -1,13 +1,9 @@
 # TodoList
 
 ## Working on
-### Data Page
-- [ ] 生成更多的data
-- [ ] 一个Data类，可以用来组织页面中需要的所有属性，放在session_data
-- [ ] 将完整的data导入到页面，graph、items、description
-- [ ] prompt尝试，llm_generation开发和封装
-- [ ] 将逻辑设计到按钮上，支持prompt修改
-- [ ] 目前将生成的场景返回到一个变量即可，这个分支就做到这个程度
+### Scenario
+- [ ] 分支树的形式，子集，但是新增的部分连接虚线
+- [ ] Data Item推荐功能
 
 ## Finished
 ## 前期工作
@@ -30,7 +26,15 @@
 - [x] 对于Hypothesis，左边是文字和变量的关系图，右边是代码编辑器
 ## 开发阶段
 - [x] 基于feature branch开发
-- [ ] 想了下，开发顺序调整，先实现Data Page， 在过程中尝试确定一个合适的后端组织形式，然后再实现其他Function和page
+- [x] 想了下，开发顺序调整，先实现Data Page， 在过程中尝试确定一个合适的后端组织形式，然后再实现其他Function和page
+### Data Page
+- [x] 生成更多的data
+- [x] 一个Data类，可以用来组织页面中需要的所有属性，放在session_data
+- [x] 将完整的data导入到页面，graph、items、description
+- [x] prompt尝试，llm_generation开发和封装
+- [x] 将逻辑设计到按钮上，支持prompt修改
+- [x] 目前将生成的场景返回到一个变量即可，这个分支就做到这个程度
+
 
 ## Future Work
 ## 美化阶段

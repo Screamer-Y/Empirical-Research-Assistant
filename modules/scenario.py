@@ -6,7 +6,7 @@ class Scenario:
         self.description = description
 
 class ScenarioBranch:
-    def __init__(self, branch_id: str, description: str, selected_items: list = []):
+    def __init__(self, branch_id: str, description: str, selected_items: dict = {}):
         self.id = branch_id
         self.description = description
         self.selected_items = selected_items
@@ -32,20 +32,20 @@ class ScenarioTree:
         self.data = data
         self.branches = {}
 
-    def add_branch(self, branch_id: str, description: str):
+    def add_branch(self, branch_id: str, description: str, selected_items: dict):
         if branch_id not in self.branches:
             branch = ScenarioBranch(branch_id, description)
             self.branches[branch_id] = branch
         else:
             raise KeyError("Branch ID already exists")
         
-    def add_scenario(self, branch_id: str, scenario_id: str, description: str, branch_scenario:str = '', relation:str = ''):
+    def add_scenario(self, branch_id: str, scenario_id: str, description: str, selected_items: dict, branch_scenario:str = '', relation:str = ''):
         if branch_id in self.branches:
             branch: ScenarioBranch = self.branches[branch_id]
             branch.add_scenario_relation(branch.scenarios[-1].id, scenario_id, relation)
             branch.add_scenario(scenario_id, description)
         else:
-            self.add_branch(branch_id, branch_scenario)
+            self.add_branch(branch_id, branch_scenario, selected_items)
             self.branches[branch_id].add_scenario(scenario_id, description)
 
     def get_branch(self, branch_id: str):

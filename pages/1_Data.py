@@ -66,12 +66,18 @@ if st.session_state.get("data_file"):
     
     st.subheader("Generate Scenarios")
     items_option = [f"{name}: {col}" for name, df in st.session_state.data_file.items() for col in df.columns]
-    selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
-    selected_items_dict = get_selected_items_dict(selected_items)
+    col1, col2 = st.columns([6, 1])
+    with col1:
+        current_selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
+    with col2:
+        if st.button("Confirm", use_container_width=True, type='primary', key="Confirm_Selected_Items"):
+            st.session_state.selected_items_dict = get_selected_items_dict(current_selected_items)
     st.info("You can modify the prompt below, add requirements in the <User Guidance>, and generate scenarios.", icon="ℹ️")
     with st.expander("##Prompt##", expanded=False):
         system_prompt = st.text_area("System Prompt", value=GENERATE_SCENARIO_SYSTEM_PROMPT,height=150)
-        human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
+        if not st.session_state.selected_items_dict:
+            st.warning("No data item selected yet.")
+        human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(st.session_state.selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
         user_guidance = st.text_area("User Guidance", value="<User Guidance>\n")
     col2 = middle_element([2,1,2])
     with col2:
@@ -84,13 +90,12 @@ if st.session_state.get("data_file"):
         with st.expander("Scenario", expanded=True):
             scenario_str = ''
             for key, value in st.session_state.scenario_output.items():
-                # st.markdown(f"### {key}\n{value}\n")
                 scenario_str += f"### {key}\n{value}\n"
             scenario_str = scenario_str[:-1]
             st.markdown(scenario_str)
             if st.button("Save Scenarios", type='primary'):
-                branch_id = md5(''.join(selected_items).encode()).hexdigest()
-                st.session_state.scenario_tree.add_scenario(branch_id, st.session_state.scenario_output['Scenario Name'], scenario_str)
+                branch_id = md5(str(st.session_state.selected_items_dict).encode()).hexdigest()
+                st.session_state.scenario_tree.add_scenario(branch_id, st.session_state.scenario_output['Scenario Name'], scenario_str, st.session_state.selected_items_dict)
                 st.success("Scenarios saved successfully!")
       
     

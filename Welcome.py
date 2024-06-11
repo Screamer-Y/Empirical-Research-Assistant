@@ -11,7 +11,7 @@ from modules.utils import get_project_dict, middle_element, PROJECT_PATH
 from modules.scenario import ScenarioTree
 
 # initialize session state
-session_state_init = {'project': None, 'llm': None, 'data_file': None, 'data_description': None, 'project_path': PROJECT_PATH, 'scenario_tree': ScenarioTree(None)}
+session_state_init = {'project': None, 'llm': None, 'data_file': None, 'data_description': None, 'project_path': PROJECT_PATH, 'scenario_tree': ScenarioTree(None), 'scenario_output': None, 'selected_items_dict': {}}
 for key, value in session_state_init.items():
     if key not in st.session_state:
         st.session_state[key] = value

@@ -32,12 +32,12 @@ def data_description_generation(item_df):
         return
     item_dict = {}
     for index, row in item_df.iterrows():
-        column = row['column']
-        item_dict[column] = {col: row[col] for col in item_df.columns if col != 'column' and col != 'description'}
+        column = row['name']
+        item_dict[column] = {col: row[col] for col in item_df.columns if col != 'name' and col != 'description'}
     res = st.session_state.llm.invoke('', DATA_DESCRIPTION_PROMPT.format(item_dict))
     res = eval(res)
     for name, desc in res.items():
-        item_df.loc[item_df['column'] == name, 'description'] = desc
+        item_df.loc[item_df['name'] == name, 'description'] = desc
     return item_df
 
 def data_relationship_generation(sp, hi, ug):
