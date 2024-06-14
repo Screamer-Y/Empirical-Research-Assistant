@@ -10,15 +10,10 @@ import pandas as pd
 from modules.component import data_file_selector, info_sidebar, data_sidebar
 from modules.utils import middle_element, get_selected_items_dict
 from modules.llm import data_description_generation, data_relationship_generation
+from modules.scenario import ScenarioTree
 from modules.prompt import *
 import json, time
 from hashlib import md5
-
-# initialize session state
-session_state_keys = ['data_file', 'data_description', 'scenario_output']
-for key in session_state_keys:
-    if key not in st.session_state:
-        st.session_state[key] = None
 
 st.title('Data Exploration')
 info_sidebar()
@@ -26,7 +21,7 @@ data_sidebar()
 
 # select data file
 data_file_selector()
-st.divider()
+
 if st.session_state.get("data_file"):
     
     st.subheader("Data Details")
@@ -68,7 +63,7 @@ if st.session_state.get("data_file"):
     items_option = [f"{name}: {col}" for name, df in st.session_state.data_file.items() for col in df.columns]
     col1, col2 = st.columns([6, 1])
     with col1:
-        current_selected_items = st.multiselect("Select Data Items", items_option, default=None, placeholder="Select Data Items", label_visibility='collapsed')
+        current_selected_items = st.multiselect("Select Data Items", items_option, default=["{}: {}".format(k, i["name"]) for k,v in st.session_state.selected_items_dict.items() for i in v] if st.session_state.selected_items_dict else None, placeholder="Select Data Items", label_visibility='collapsed')
     with col2:
         if st.button("Confirm", use_container_width=True, type='primary', key="Confirm_Selected_Items"):
             st.session_state.selected_items_dict = get_selected_items_dict(current_selected_items)
@@ -77,26 +72,34 @@ if st.session_state.get("data_file"):
         system_prompt = st.text_area("System Prompt", value=GENERATE_SCENARIO_SYSTEM_PROMPT,height=150)
         if not st.session_state.selected_items_dict:
             st.warning("No data item selected yet.")
-        human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(st.session_state.selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
-        user_guidance = st.text_area("User Guidance", value="<User Guidance>\n")
+        else:
+            human_input = st.text_area("Human Input", value=f"<User Input>\n{json.dumps(st.session_state.selected_items_dict, ensure_ascii=False, indent=4)}", height=150)
+            user_guidance = st.text_area("User Guidance", value="<User Guidance>\n")
     col2 = middle_element([2,1,2])
     with col2:
         if st.button("Generate Scenarios", use_container_width=True, type='primary'):
-            # in json format
-            scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
-            st.session_state.scenario_output = json.loads(scenario)
+            if st.session_state.selected_items_dict:
+                # in json format
+                scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
+                st.session_state.data_page_scenario_output = json.loads(scenario)
     st.divider()
-    if st.session_state.get("scenario_output"):    
+    if st.session_state.get("data_page_scenario_output") and st.session_state.data_page_scenario_output:    
         with st.expander("Scenario", expanded=True):
             scenario_str = ''
-            for key, value in st.session_state.scenario_output.items():
-                scenario_str += f"### {key}\n{value}\n"
+            for key, value in st.session_state.data_page_scenario_output.items():
+                if key=='Scenario Name':
+                    continue
+                scenario_str += f"#### {key}\n{value}\n"
             scenario_str = scenario_str[:-1]
-            st.markdown(scenario_str)
+            st.markdown("### {}\n".format(st.session_state.data_page_scenario_output["Scenario Name"])+scenario_str)
             if st.button("Save Scenarios", type='primary'):
                 branch_id = md5(str(st.session_state.selected_items_dict).encode()).hexdigest()
-                st.session_state.scenario_tree.add_scenario(branch_id, st.session_state.scenario_output['Scenario Name'], scenario_str, st.session_state.selected_items_dict)
+                scenario_id = st.session_state.data_page_scenario_output['Scenario Name']
+                st.session_state.scenario_tree.add_scenario(branch_id, scenario_id, scenario_str, st.session_state.selected_items_dict)
+                st.session_state.current_branch = st.session_state.scenario_tree.get_branch(branch_id)
+                st.session_state.current_scenario = st.session_state.scenario_tree.get_scenario(branch_id, scenario_id)
                 st.success("Scenarios saved successfully!")
       
-    
+      
+st.write(st.session_state)
             

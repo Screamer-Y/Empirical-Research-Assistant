@@ -25,6 +25,7 @@ def data_sidebar():
 ## Data Page components
 def data_file_selector():
     if not st.session_state.get('project'):
+        st.error("No project selected. Please select a project first.", icon="🚫")
         return
     project_path = st.session_state.project + '\\data\\'
     data_csv = {name:os.path.join(project_path, name) for name in os.listdir(project_path) if os.path.join(project_path, name).endswith(".csv")}
@@ -55,5 +56,29 @@ def data_file_selector():
             st.session_state.data_file[n] = df
             st.session_state.data_description[n] = pd.DataFrame({'name': df.columns, 'type': [str(t) for t in df.dtypes.tolist()], 'description': [''] * len(df.columns), 'example': [df.iloc[0,i] for i in range(len(df.columns))]}, index=range(1, len(df.columns) + 1))
         st.session_state.scenario_tree.data = st.session_state.data_file
+    st.divider()
 
+## Scenario Page components
+def scenario_selector(tree):
+    col1, col2, col3 = st.columns([3,3,1])
+    with col1:
+        st.write("Select a branch:")
+    with col2:
+        st.write("Select a scenario:")
+    col1, col2, col3 = st.columns([3,3,1])
 
+    with col1:
+        sp_current_branch = st.selectbox("Branch", list(tree.branches.keys()), label_visibility='collapsed')
+    with col2:
+        sp_current_scenario = st.selectbox("Scenario", [s.id for s in tree.get_branch(sp_current_branch).scenarios], label_visibility='collapsed')
+    with col3:
+        if st.button("Confirm", type='primary', use_container_width=True):
+            st.session_state.current_scenario = tree.get_branch(sp_current_branch).get_scenario_by_id(sp_current_scenario)
+
+def scenario_data():
+    for k, v in st.session_state.selected_items_dict.items():
+        cols = [i['name'] for i in v]
+        df = st.session_state.data_description[k]
+        selected_df = df.loc[df['name'].isin(cols)]
+        with st.expander(k, expanded=False):
+            st.data_editor(selected_df, use_container_width=True)

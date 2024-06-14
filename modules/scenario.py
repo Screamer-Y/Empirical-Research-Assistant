@@ -36,6 +36,7 @@ class ScenarioTree:
         if branch_id not in self.branches:
             branch = ScenarioBranch(branch_id, description)
             self.branches[branch_id] = branch
+            self.branches[branch_id].selected_items = selected_items
         else:
             raise KeyError("Branch ID already exists")
         
@@ -53,3 +54,16 @@ class ScenarioTree:
             return self.branches[branch_id]
         else:
             raise KeyError("Branch ID not found")
+        
+    def get_branch_by_items(self, selected_items: dict):
+        for branch in self.branches.values():
+            if branch.selected_items == selected_items:
+                return branch
+        return None
+        
+    def get_scenario(self, branch_id: str, scenario_id: str):
+        if branch_id in self.branches:
+            branch: ScenarioBranch = self.branches[branch_id]
+            return branch.get_scenario_by_id(scenario_id)
+        else:
+            raise None

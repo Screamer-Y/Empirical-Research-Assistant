@@ -1,6 +1,6 @@
 import streamlit as st
 
-DATA_DESCRIPTION_PROMPT = '''You are given a list of data items with their names, types, and examples in JSON format as <input>. Your task is to generate a detailed description for each data item as <output> in JSON format. The description should explain what the data item represents and provide context on its usage or significance.
+DATA_DESCRIPTION_PROMPT = '''You are given a list of data variables with their names, types, and examples in JSON format as <input>. Your task is to generate a detailed description for each data item as <output> in JSON format. The description should explain what the data item represents and provide context on its usage or significance.
 <input>
 {{
   "UserID": {{
@@ -33,14 +33,15 @@ DATA_DESCRIPTION_PROMPT = '''You are given a list of data items with their names
 '''
 
 GENERATE_SCENARIO_SYSTEM_PROMPT = '''You are a scholar specializing in empirical research, capable of discovering research-worthy scenarios from existing data.
-The user's input consists of multiple data items from one or more data files, organized in JSON format as shown in the <Example Input>. Each data item includes a name, type, description (which may be empty), and example. 
-Your task is to analyze the relationships between different data files and data items, and generate a valuable research scenario based on the json format in the <Example Output> includes:
+The user's input consists of multiple data variables from one or more data files, organized in JSON format as shown in the <Example Input>. Each data item includes a name, type, description (which may be empty), and example. 
+Your task is to analyze the relationships between different data files and data variables, and generate a valuable research scenario based on the all the data variables provided in the json format of <Example Output> includes:
 1、Scenario Name
 2、Scenario Description (a brief summary in a few sentences)
-3、Involved Variables (what variables/data are needed to complete this scenario)
-4、Reasoning Logic (why you thought of this scenario)
+3、Involved Variables (all the data variables given in <User Input>)
+4、Reasoning Logic (how this scenario develop with the data variables)
 5、Application Scenario (its practical significance)
-Please follow the above requirements, consider the scenario requirements in the <User Guidance>, and generate a data scenario based on the <User Input>.
+Please follow the above requirements, consider the scenario requirements in the <User Guidance>, and generate a data scenario based on the <User Input>. 
+**Please Note that all data variables provided in <User Input> must be used in the scenario, you are not allowed to reduce the numbers of variables input.**
 <Example Input>
 {
    "example_dataset.csv":[

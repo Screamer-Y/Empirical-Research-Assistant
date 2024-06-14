@@ -11,7 +11,9 @@ from modules.utils import get_project_dict, middle_element, PROJECT_PATH
 from modules.scenario import ScenarioTree
 
 # initialize session state
-session_state_init = {'project': None, 'llm': None, 'data_file': None, 'data_description': None, 'project_path': PROJECT_PATH, 'scenario_tree': ScenarioTree(None), 'scenario_output': None, 'selected_items_dict': {}}
+session_state_init = {'project': None, 'llm': None, 'project_path': PROJECT_PATH, \
+        'data_file': None, 'data_description': None, 'data_page_scenario_output': None, 'selected_items_dict': {}, \
+        'scenario_tree': ScenarioTree(None), 'current_scenario': None, 'current_branch': None}
 for key, value in session_state_init.items():
     if key not in st.session_state:
         st.session_state[key] = value
@@ -34,14 +36,17 @@ st.subheader("Create or Load a Project to Get Started!")
 
 # col11, col12, col13 = st.columns([6,1,1])
 col1, col2, col3 = st.columns([6,1,1])
-
+if not st.session_state.project:
+    current_project = None
+else:
+    current_project = st.session_state.project.split("\\")[-1]
 with col1:
     selected_project = st.selectbox(
         "Select a project:",
         list(projects_dict.keys()),
         label_visibility='collapsed',
-        index=None,
-        placeholder='Select a project'
+        placeholder='Select a project',
+        index = list(projects_dict.keys()).index(current_project) if current_project else None
     )
     
 with col2:
@@ -67,11 +72,14 @@ with st.expander("Advanced Settings"):
 col2 = middle_element([6,1,1], 3)
 with col2:
     if st.button("Save Settings", type='primary', use_container_width=True):
-        llm = LLM(api_key=openai_api_key, temperature=temperature, model_name=model_name, openai_api_base=openai_api_base)
-        if llm.test_available():
-            st.session_state.llm = llm
+        with st.spinner('Testing LLM...'):
+            llm = LLM(api_key=openai_api_key, temperature=temperature, model_name=model_name, openai_api_base=openai_api_base)
+            if llm.test_available():
+                st.session_state.llm = llm
 
 info_sidebar()
+
+
     
     
 
