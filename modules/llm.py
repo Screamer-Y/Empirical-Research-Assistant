@@ -46,4 +46,15 @@ def data_relationship_generation(sp, hi, ug):
         return
     res = st.session_state.llm.invoke(sp, '\n'.join([hi, ug, '<User Output>']))
     return res
-    
+
+# 假设生成函数
+def generate_multiple_hypotheses(scenario_description, num_hypotheses=3):
+    if not st.session_state.get('llm'):
+        st.error("LLM is not available. Please check your settings.", icon="😣")
+        return []
+    system_prompt = "Given the scenario, generate multiple hypotheses that outline potential outcomes or implications."
+    hypotheses = []
+    for _ in range(num_hypotheses):
+        response = st.session_state.llm.invoke(system_prompt, scenario_description)
+        hypotheses.append(response)
+    return hypotheses

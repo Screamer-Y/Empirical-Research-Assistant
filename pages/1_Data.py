@@ -79,27 +79,25 @@ if st.session_state.get("data_file"):
     with col2:
         if st.button("Generate Scenarios", use_container_width=True, type='primary'):
             if st.session_state.selected_items_dict:
-                # in json format
-                scenario = data_relationship_generation(system_prompt, human_input, user_guidance)
-                st.session_state.data_page_scenario_output = json.loads(scenario)
-    st.divider()
-    if st.session_state.get("data_page_scenario_output") and st.session_state.data_page_scenario_output:    
-        with st.expander("Scenario", expanded=True):
-            scenario_str = ''
-            for key, value in st.session_state.data_page_scenario_output.items():
-                if key=='Scenario Name':
-                    continue
-                scenario_str += f"#### {key}\n{value}\n"
-            scenario_str = scenario_str[:-1]
-            st.markdown("### {}\n".format(st.session_state.data_page_scenario_output["Scenario Name"])+scenario_str)
-            if st.button("Save Scenarios", type='primary'):
-                branch_id = md5(str(st.session_state.selected_items_dict).encode()).hexdigest()
-                scenario_id = st.session_state.data_page_scenario_output['Scenario Name']
-                st.session_state.scenario_tree.add_scenario(branch_id, scenario_id, scenario_str, st.session_state.selected_items_dict)
-                st.session_state.current_branch = st.session_state.scenario_tree.get_branch(branch_id)
-                st.session_state.current_scenario = st.session_state.scenario_tree.get_scenario(branch_id, scenario_id)
-                st.success("Scenarios saved successfully!")
-      
-      
-st.write(st.session_state)
-            
+                st.session_state.scenarios = [data_relationship_generation(system_prompt, human_input, user_guidance) for _ in range(3)]
+                st.session_state.scenario_saved = [False] * 3
+    
+    if st.session_state.get("scenarios"):
+        for idx, scenario_json in enumerate(st.session_state.scenarios):
+            with st.expander(f"Scenario {idx + 1}", expanded=True):
+                scenario = json.loads(scenario_json)
+                scenario_str = "\n".join(f"#### {key}\n{value}" for key, value in scenario.items())
+                st.markdown(scenario_str)
+                if not any(st.session_state.scenario_saved):
+                    if st.button("Save Scenario", key=f"save_{idx}"):
+                        branch_id = md5(str(st.session_state.selected_items_dict).encode()).hexdigest()
+                        scenario_id = scenario['Scenario Name']
+                        st.session_state.scenario_tree.add_scenario(branch_id, scenario_id, scenario_str, st.session_state.selected_items_dict)
+                        st.session_state.current_branch = st.session_state.scenario_tree.get_branch(branch_id)
+                        st.session_state.current_scenario = st.session_state.scenario_tree.get_scenario(branch_id, scenario_id)
+                        st.session_state.scenario_saved[idx] = True
+                        st.success("Scenario saved successfully!")
+                else:
+                    st.success("Scenario saved, other save options are now disabled.")
+                    
+    st.write(st.session_state)

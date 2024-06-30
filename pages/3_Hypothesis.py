@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 from streamlit_agraph import agraph, Node, Edge, Config
-
-    
 import pandas as pd
+
+st.subheader("Hypothesis Information")
+with st.expander("Expand", expanded=True):
+        st.write(st.session_state.current_scenario.hypotheses)
 
 # 定义节点
 nodes = pd.DataFrame({
@@ -116,4 +118,3 @@ gen abstract = (PatternType == "abstract")
 * Compare the likelihood of having a warm palette across pattern types
 logit warm_palette geometric floral abstract
 ''')
-            

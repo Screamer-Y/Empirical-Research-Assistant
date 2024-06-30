@@ -6,17 +6,23 @@ st.set_page_config(
 )
 from streamlit_react_flow import react_flow
 from hashlib import md5
-from modules.component import info_sidebar, scenario_selector, scenario_data
+from modules.component import info_sidebar, scenario_selector, scenario_data, scenario_graph
 from modules.utils import get_selected_items_dict, middle_element
+from modules.llm import generate_multiple_hypotheses
 
 st.title('Scenario')
 info_sidebar()
 tree = st.session_state.scenario_tree
 st.subheader("Scenario Bracnches")
-# 图：等待实现
+
+# 节点的图
 scenario_selector(tree)
+st.subheader("Interactive Scenario Graph")
+with st.expander("Click to expand or collapse the graph view", expanded=True):
+    graph_component = scenario_graph(tree)
 st.divider()
 
+# 场景所用到的数据项
 st.subheader("Scenario Data")
 scenario_data()
 st.divider()
@@ -36,7 +42,9 @@ with st.expander("Modify Scenario", expanded=True):
     with col2:
         if st.button("Save as New Scenario", type='primary', use_container_width=True):
             branch_id = md5(str(current_selected_items_dict).encode()).hexdigest()
-            tree.add_scenario(branch_id, scenario_name, scenario_description, current_selected_items_dict)
+            parent_id = st.session_state.current_scenario.id
+            st.write(parent_id)
+            tree.add_scenario(branch_id, scenario_name, scenario_description, current_selected_items_dict, parent_id)
             st.session_state.current_scenario = tree.get_branch(branch_id).get_scenario_by_id(scenario_name)
     with col3:
         if current_selected_items==defaults:
@@ -47,12 +55,29 @@ with st.expander("Modify Scenario", expanded=True):
             st.button("Update Scenario", type='primary', key="us2", use_container_width=True, disabled=True)
 st.divider()
 
-col2 = middle_element([2,1,2])
+
+
+col2 = middle_element([1, 2, 1])
 with col2:
-    if st.button("Generate Hypothesis", use_container_width=True, type='primary'):
-        st.error("Sorry, this feature is not available yet.", icon="🥹")
+    if st.button("Generate Hypotheses", use_container_width=True, type='primary'):
+        if 'current_scenario' in st.session_state:
+            scenario_description = st.session_state.current_scenario.description
+            generated_hypotheses = generate_multiple_hypotheses(scenario_description)
+            st.session_state.generated_hypotheses = generated_hypotheses  # 保存生成的假设列表到会话状态
+        else:
+            st.error("No scenario selected. Please select a scenario first.", icon="🥹")
 
-
+# 展示假设选择和编辑框
+if 'generated_hypotheses' in st.session_state and st.session_state.generated_hypotheses:
+    hypothesis_index = st.selectbox("Select Hypothesis to View/Edit:", range(len(st.session_state.generated_hypotheses)), format_func=lambda x: f"Hypothesis {x+1}")
+    editable_hypothesis = st.text_area("Edit Hypothesis", st.session_state.generated_hypotheses[hypothesis_index], height=200)
+    if st.button("Save Hypothesis", type='primary'):
+        # 更新选中的假设
+        st.session_state.generated_hypotheses[hypothesis_index] = editable_hypothesis
+        # st.session_state.current_scenario.hypotheses = st.session_state.generated_hypotheses
+        st.session_state.current_scenario.hypotheses = editable_hypothesis
+        st.markdown("Hypotheses saved successfully!")
+        st.write(st.session_state.current_scenario.hypotheses)
 
 st.write(st.session_state)
 
